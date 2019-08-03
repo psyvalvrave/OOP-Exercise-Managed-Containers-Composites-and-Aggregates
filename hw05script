@@ -1,0 +1,162 @@
+Script started on 2019-05-01 10:35:22-04:00
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat card.cpp
+#include<card.h>
+
+QString Card::toString(){
+    return QString(s_SUits[m_SuitNbr]+'-'+s_Faces.at(m_FceNbr));
+}
+QString Card::getFace(){
+    return s_Faces.at(m_FceNbr);
+}
+QString Card::getSuit(){
+    return s_SUits[m_SuitNbr];
+}
+int Card::getValue(){
+    switch(m_FceNbr){
+    case 0: return 4;
+        break;
+    case 10: return 1;
+        break;
+    case 11: return 2;
+        break;
+    case 12: return 3;
+        break;
+    default: return 0;
+        break;
+    }
+}
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat card.g[Kh
+#ifndef CARD_H
+#define CARD_H
+#include<QString>
+#include<QStringList>
+class Card{
+public:
+    Card(int faceNbr, int suitNbr):m_FceNbr(faceNbr),m_SuitNbr(suitNbr){}
+    QString toString();
+    QString getFace();
+    QString getSuit();
+    int getValue();
+private:
+    int m_FceNbr;
+    int m_SuitNbr;
+    QStringList s_Faces = QStringList()<<"A"<<"2"<<"3"<<"4"<<"5"<<"6"<<"7"<<"8"<<
+                                         "9"<<"10"<<"J"<<"Q"<<"K";
+    QStringList s_SUits = QStringList()<<"Diamond"<<"Spades"<<"Heart"<<"Club";
+};
+#endif // CARD_H
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat carddeck.cpp
+#include<carddeck.h>
+#include<cstdlib>
+int const SUIT_TOTAL = 4;
+int const FACE_TOTAL = 13;
+Carddeck::Carddeck(){
+    for(int a=0; a<SUIT_TOTAL; a++){
+        for(int b=0;b<FACE_TOTAL; b++){
+            this->append(new Card(b,a));
+        }
+    }
+}
+
+void Carddeck::restoreDeck(){
+    qDeleteAll(this->begin(),this->end());
+    Carddeck();
+}
+
+int Carddeck::getCardLeft(){
+    return this->size();
+}
+
+QString Carddeck::toString(){
+    QString s;
+    for(Card *face: *this){
+        s += face->toString() + "\t";
+    }
+    return s;
+}
+
+Cardhand Carddeck::deal(int handSize){
+    Cardhand *hand = new Cardhand();
+    for(int i=0;i<handSize;i++){
+        srand(time(0));
+        int r = rand()%this->size();
+        *hand<<this->at(r);
+        this->removeAt(r);
+    }
+    return *hand;
+}
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat carddeck.h
+#ifndef CARDDECK_H
+#define CARDDECK_H
+#include<QString>
+#include<card.h>
+#include<QList>
+#include<cardhand.h>
+class Carddeck: public QList<Card*>{
+public:
+    Carddeck();
+    Cardhand deal(int handSize);
+    QString toString();
+    int getCardLeft();
+    void restoreDeck();
+};
+#endif // CARDDECK_H
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat cardhand.cpp
+#include<cardhand.h>
+
+int Cardhand::getValue(){
+    int total=0;
+    for(Card *value: *this){
+        total += value->getValue();
+    }
+    return total;
+}
+
+QString Cardhand::toString(){
+    QString s;
+    for(Card *face: *this){
+        s += face->toString() + "\t";
+    }
+    return s;
+}
+
+
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat cardhand.h
+#ifndef CARDHAND_H
+#define CARDHAND_H
+#include<card.h>
+#include<QString>
+#include<QList>
+class Cardhand: public QList<Card*>{
+public:
+    int getValue();
+    QString toString();
+};
+#endif // CARDHAND_H
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ cat CardGame.pro
+QT += widgets
+
+HEADERS += \
+    carddeck.h \
+    card.h \
+    cardhand.h
+
+SOURCES += \
+    card.cpp \
+    cardhand.cpp \
+    carddeck.cpp \
+    main.cpp
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ make
+make: *** No targets specified and no makefile found.  Stop.
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ qmake
+Info: creating stash file /home/psy/CardGame/.qmake.stash
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ make
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o card.o card.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o cardhand.o cardhand.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o carddeck.o carddeck.cpp
+g++ -c -pipe -O2 -Wall -W -D_REENTRANT -fPIC -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_CORE_LIB -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtWidgets -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I. -isystem /usr/include/libdrm -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -o main.o main.cpp
+g++ -Wl,-O1 -o CardGame card.o cardhand.o carddeck.o main.o   -lQt5Widgets -lQt5Gui -lQt5Core -lGL -lpthread 
+]0;psy@psy: ~/CardGame[01;32mpsy@psy[00m:[01;34m~/CardGame[00m$ exi[K[K[Kexit
+exit
+
+Script done on 2019-05-01 10:37:12-04:00
